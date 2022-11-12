@@ -1,12 +1,18 @@
-package entities
+package domain
 
 import (
+	"strconv"
 	"time"
 )
 
 type Account struct {
 	Id      int    `json:"account_id"`
 	Balance uint32 `json:"balance"`
+}
+
+func (a Account) String() string {
+	return "Id:" + strconv.FormatInt(int64(a.Id), 10) +
+		"\n Balance" + strconv.FormatUint(uint64(a.Balance), 10)
 }
 
 type Service struct {

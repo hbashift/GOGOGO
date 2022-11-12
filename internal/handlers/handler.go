@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"HTTP-REST-API/internal/storage"
+	"HTTP-REST-API/internal/domain/repository"
 	"fmt"
 	"github.com/gin-gonic/gin"
 )
@@ -24,23 +24,15 @@ type Handler interface {
 // TODO можно сделать разделение handler'ов
 
 type handlerImpl struct { // implements Handler
-	acсountDB     *storage.AccountDb
-	reserveDB     *storage.ReserveDb
-	transactionDB *storage.TransactionDb
+	db repository.Repository
 }
 
-func InitHandler(acc *storage.AccountDb, res *storage.ReserveDb) (Handler, error) {
-	if acc == nil {
-		return nil, fmt.Errorf("some error")
-	}
-
-	if res == nil {
-		return nil, fmt.Errorf("some error")
+func NewHandler(repo repository.Repository) (Handler, error) {
+	if repo == nil {
+		return nil, fmt.Errorf("empty repository")
 	}
 
 	return &handlerImpl{
-		acсountDB:     acc,
-		reserveDB:     res,
-		transactionDB: nil,
+		db: repo,
 	}, nil
 }
