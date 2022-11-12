@@ -10,6 +10,11 @@ type Account struct {
 	Balance uint32 `json:"balance"`
 }
 
+type AccountDto struct {
+	Id           int    `json:"account_id"`
+	BalanceAdded uint32 `json:"balance_added"`
+}
+
 func (a Account) String() string {
 	return "Id:" + strconv.FormatInt(int64(a.Id), 10) +
 		"\n Balance" + strconv.FormatUint(uint64(a.Balance), 10)

@@ -24,15 +24,15 @@ func main() {
 		log.Fatalln(err)
 	}
 	router := gin.Default()
-	test := postgres.PostgresDbInit(db)
+	test := postgres.InitPostgresDb(db)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	handler, _ := handlers.NewHandler(test)
 
-	router.GET("/balance/:id", handler.GetUserBalance)
-	router.POST("/account/add", handler.AddToUserBalance)
+	router.GET("/balance/:id", handler.GetAccountBalance)
+	router.POST("/account/add", handler.AddToAccountBalance)
 
 	// TODO здесь все методы для ТЗ
 	router.Run("localhost:8080")

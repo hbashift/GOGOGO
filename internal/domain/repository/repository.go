@@ -6,7 +6,7 @@ import (
 )
 
 type Repository interface {
-	GetBalance(accountId int) (domain.Account, error)
+	GetBalance(accountId int) (*Account, error)
 	AddToBalance(accountId, amount int) (domain.TransactionStatus, error)
 	ReserveAmount(accountId, serviceId, orderId, amount int) (domain.ReserveStatus, error)
 	Withdraw(accountId, amount int) (domain.TransactionStatus, error)

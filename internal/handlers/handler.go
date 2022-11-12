@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-/*func GetUserBalance(w http.ResponseWriter, r *http.Request) {
+/*func GetAccountBalance(w http.ResponseWriter, r *http.Request) {
 
 }*/
 
@@ -14,8 +14,8 @@ type Handler interface {
 
 	// TODO methods
 
-	GetUserBalance(ctx *gin.Context)
-	AddToUserBalance(ctx *gin.Context)
+	GetAccountBalance(ctx *gin.Context)
+	AddToAccountBalance(ctx *gin.Context)
 	ReserveUsersAmount(ctx *gin.Context)
 	AdmitPurchase(ctx *gin.Context)
 }
