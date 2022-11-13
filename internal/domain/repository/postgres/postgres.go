@@ -104,10 +104,25 @@ func (db *postgresDb) checkBalance(accountId, amount int) domain.ReserveStatus {
 }
 
 func (db *postgresDb) ReserveAmount(accountId, serviceId, orderId, amount int) (domain.ReserveStatus, error) {
-	rows, _ := db.postgres.Query("SELECT EXISTS(SELECT * FROM reservation WHERE account_id=$1 AND reservation_status=$2)",
-		accountId, domain.Reserved.String())
+	rows, _ := db.postgres.Query("SELECT EXISTS(SELECT * FROM reservation WHERE order_id=$1 AND reservation_status=$2)",
+		orderId, domain.Accepted.String())
 
 	var isExists bool
+
+	for rows.Next() {
+		if err := rows.Scan(&isExists); err != nil {
+			log.Fatalln(err)
+		}
+	}
+
+	if isExists {
+		return domain.UnknownReserve, errors.New("such order with order_id is already accepted")
+	}
+
+	rows, _ = db.postgres.Query("SELECT EXISTS(SELECT * FROM reservation WHERE account_id=$1 AND reservation_status=$2 AND order_id=$3)",
+		accountId, domain.Reserved.String(), orderId)
+
+	isExists = false
 
 	for rows.Next() {
 		if err := rows.Scan(&isExists); err != nil {
@@ -216,12 +231,59 @@ func (db *postgresDb) Admit(accountId, orderId, serviceId, amount int) (domain.T
 		return domain.UnknownTransaction, errors.New("bad params")
 	}
 
-	db.postgres.MustExec("UPDATE reservation SET reservation_status=$1", domain.Accepted.String())
+	db.postgres.MustExec("UPDATE reservation SET reservation_status=$1 WHERE order_id=$2",
+		domain.Accepted.String(), orderId)
 
 	status, err := db.withdraw(accountId, amount)
 
 	if err != nil {
-		db.postgres.MustExec("UPDATE reservation SET reservation_status=$1", domain.Reserved.String())
+		db.postgres.MustExec("UPDATE reservation SET reservation_status=$1 WHERE order_id=$2",
+			domain.Reserved.String(), orderId)
+		account := repository.Account{}
+
+		db.postgres.Get(&account, "SELECT * FROM account WHERE account_id=$1", accountId)
+		db.postgres.MustExec("UPDATE account SET balance=$1 WHERE account_id=$2",
+			account.Balance+uint32(amount), accountId)
+
+		status = domain.UnknownTransaction
+
+		return status, err
+	}
+
+	db.postgres.MustExec("INSERT INTO accounting_report(service_id, order_id, amount, account_id, report_date) VALUES ($1, $2, $3, $4, $5)",
+		serviceId, orderId, amount, accountId, time.Now().Format("2006-01-02"))
+
+	return status, err
+}
+
+func (db *postgresDb) DeclinePurchase(accountId, orderId, serviceId, amount int) (domain.TransactionStatus, error) {
+	reserve := repository.Reservation{}
+	err := db.postgres.Get(&reserve, "SELECT * FROM reservation WHERE reservation_status=$1 AND order_id=$2",
+		domain.Reserved.String(), orderId)
+
+	if err != nil {
+		err = errors.New("there is no reservation with such order_id and status \"reserved\"")
+		return domain.UnknownTransaction, err
+	}
+
+	if reserve.Amount != uint32(amount) || reserve.AccountId != accountId || reserve.ServiceId != serviceId {
+		return domain.UnknownTransaction, errors.New("bad params")
+	}
+
+	db.postgres.MustExec("UPDATE reservation SET reservation_status=$1 WHERE order_id=$2",
+		domain.Declined.String(), orderId)
+
+	status, err := db.withdraw(accountId, amount)
+
+	if err != nil {
+		db.postgres.MustExec("UPDATE reservation SET reservation_status=$1 WHERE order_id=$2",
+			domain.Reserved.String(), orderId)
+		account := repository.Account{}
+
+		db.postgres.Get(&account, "SELECT * FROM account WHERE account_id=$1", accountId)
+		db.postgres.MustExec("UPDATE account SET balance=$1 WHERE account_id=$2",
+			account.Balance+uint32(amount), accountId)
+
 		status = domain.UnknownTransaction
 
 		return status, err

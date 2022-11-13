@@ -40,6 +40,7 @@ type TransactionStatus uint8
 const (
 	Deposit TransactionStatus = iota
 	Withdraw
+	DeclinedTransaction
 	UnknownTransaction
 )
 
@@ -60,6 +61,8 @@ func TransactionStatusFromString(val string) TransactionStatus {
 		return Deposit
 	case "withdraw":
 		return Withdraw
+	case "declined":
+		return DeclinedTransaction
 	default:
 		return UnknownTransaction
 	}

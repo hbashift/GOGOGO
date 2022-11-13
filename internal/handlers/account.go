@@ -3,7 +3,6 @@ package handlers // Package handlers для аккаунта
 import (
 	"HTTP-REST-API/internal/domain"
 	"errors"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -12,13 +11,19 @@ import (
 func (handler *handlerImpl) GetAccountBalance(ctx *gin.Context) {
 	// знаем URL и контекст, можем обратиться к БД
 	id, err := strconv.Atoi(ctx.Param("id"))
+
 	if err != nil {
-		fmt.Errorf("parser error : %s", err)
+		ctx.String(http.StatusBadRequest, "%s", err)
+		return
 	}
+
 	account, err := handler.db.GetBalance(id)
+
 	if err != nil {
-		fmt.Errorf("db error: %s", err)
+		ctx.String(http.StatusBadRequest, "%s", err)
+		return
 	}
+
 	ctx.IndentedJSON(http.StatusOK, *account)
 }
 
@@ -27,7 +32,8 @@ func (handler *handlerImpl) AddToAccountBalance(ctx *gin.Context) {
 	err := ctx.BindJSON(&account)
 
 	if err != nil {
-		errors.New("wrong account formatting")
+		ctx.String(http.StatusBadRequest, "%s", err)
+		return
 	}
 
 	if account.Id == 0 && account.BalanceAdded == 0 {
@@ -38,7 +44,7 @@ func (handler *handlerImpl) AddToAccountBalance(ctx *gin.Context) {
 
 	status, err := handler.db.AddToBalance(account.Id, int(account.BalanceAdded))
 	if err != nil {
-		fmt.Errorf("bad request")
+		ctx.String(http.StatusBadRequest, "%s", err)
 	}
 
 	if status == domain.Deposit {
