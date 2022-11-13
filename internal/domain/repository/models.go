@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"HTTP-REST-API/internal/domain"
 	"time"
 )
 
@@ -17,11 +16,11 @@ type Service struct {
 }
 
 type Reservation struct {
-	Id        int                  `db:"reservation_id"`
-	AccountId int                  `db:"account_id"`
-	ServiceId int                  `db:"service_id"`
-	OrderId   int                  `db:"order_id"`
-	Amount    uint32               `db:"amount"`
-	Date      time.Time            `db:"date"`
-	Status    domain.ReserveStatus `db:"reservation_status"`
+	Id        int       `db:"reservation_id"`
+	AccountId int       `db:"account_id"`
+	ServiceId int       `db:"service_id"`
+	OrderId   int       `db:"order_id"`
+	Amount    uint32    `db:"amount"`
+	Date      time.Time `db:"reserve_date"`
+	Status    string    `db:"reservation_status"`
 }

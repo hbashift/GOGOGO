@@ -33,8 +33,14 @@ func main() {
 
 	router.GET("/balance/:id", handler.GetAccountBalance)
 	router.POST("/account/add", handler.AddToAccountBalance)
-
+	router.POST("/reservation", handler.ReserveUsersAmount)
+	router.POST("/admit", handler.AdmitPurchase)
 	// TODO здесь все методы для ТЗ
 	router.Run("localhost:8080")
 
+	/*	t := time.Now()
+		p := t.Format("2006-01-02")
+
+		fmt.Println(p)
+	*/
 }

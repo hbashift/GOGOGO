@@ -9,6 +9,5 @@ type Repository interface {
 	GetBalance(accountId int) (*Account, error)
 	AddToBalance(accountId, amount int) (domain.TransactionStatus, error)
 	ReserveAmount(accountId, serviceId, orderId, amount int) (domain.ReserveStatus, error)
-	Withdraw(accountId, amount int) (domain.TransactionStatus, error)
 	Admit(accountId, orderId, serviceId, amount int) (domain.TransactionStatus, error)
 }
