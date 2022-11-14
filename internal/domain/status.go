@@ -1,5 +1,6 @@
 package domain
 
+// ReserveStatus represents current status of the accounts balance reservation
 type ReserveStatus uint8
 
 const (
@@ -22,19 +23,7 @@ func (status ReserveStatus) String() string {
 	}
 }
 
-func ReserveStatusFromString(val string) ReserveStatus {
-	switch val {
-	case "reserved":
-		return Reserved
-	case "accepted":
-		return Accepted
-	case "declined":
-		return Declined
-	default:
-		return UnknownReserve
-	}
-}
-
+// TransactionStatus represents current transaction status of the reservation in accounting_report
 type TransactionStatus uint8
 
 const (
@@ -42,6 +31,7 @@ const (
 	Withdraw
 	DeclinedTransaction
 	UnknownTransaction
+	AcceptedTransaction
 )
 
 func (status TransactionStatus) String() string {
@@ -50,20 +40,11 @@ func (status TransactionStatus) String() string {
 		return "deposit"
 	case Withdraw:
 		return "withdraw"
+	case DeclinedTransaction:
+		return "declined"
+	case AcceptedTransaction:
+		return "accepted"
 	default:
 		return "unknown"
-	}
-}
-
-func TransactionStatusFromString(val string) TransactionStatus {
-	switch val {
-	case "deposit":
-		return Deposit
-	case "withdraw":
-		return Withdraw
-	case "declined":
-		return DeclinedTransaction
-	default:
-		return UnknownTransaction
 	}
 }

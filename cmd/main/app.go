@@ -4,7 +4,6 @@ import (
 	"HTTP-REST-API/internal/domain/repository/postgres"
 	"HTTP-REST-API/internal/handlers"
 	"HTTP-REST-API/internal/service"
-	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"log"
@@ -21,23 +20,25 @@ func main() {
 	)
 
 	db, err := sqlx.Connect("postgres", "postgres://postgres:12345@localhost:5432/testdb?sslmode=disable")
+	defer db.Close()
+
 	if err != nil {
 		log.Fatalln(err)
 	}
-	router := gin.Default()
+
 	repository := postgres.InitPostgresDb(db)
-	initService := service.InitService(repository)
+	initService, err := service.InitService(repository)
 
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	handler, _ := handlers.NewHandler(initService)
+	handler, err := handlers.NewHandler(initService)
 
-	router.GET("/balance/:id", handler.GetAccountBalance)
-	router.POST("/account/add", handler.AddToAccountBalance)
-	router.POST("/reservation", handler.ReserveUsersAmount)
-	router.POST("/admit", handler.AdmitPurchase)
-	// TODO здесь все методы для ТЗ
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	router := handler.InitRoutes()
 	router.Run("localhost:8080")
 }

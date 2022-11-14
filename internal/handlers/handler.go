@@ -2,34 +2,33 @@ package handlers
 
 import (
 	"HTTP-REST-API/internal/service"
-	"fmt"
+	"errors"
 	"github.com/gin-gonic/gin"
 )
 
-/*func GetAccountBalance(w http.ResponseWriter, r *http.Request) {
-
-}*/
-
-type Handler interface {
-
-	// TODO methods
-
-	GetAccountBalance(ctx *gin.Context)
-	AddToAccountBalance(ctx *gin.Context)
-	ReserveUsersAmount(ctx *gin.Context)
-	AdmitPurchase(ctx *gin.Context)
+type Handler struct { // implements Handler
+	service service.Service
 }
 
-type handlerImpl struct { // implements Handler
-	service *service.Service
-}
-
-func NewHandler(service *service.Service) (Handler, error) {
-	if service == nil {
-		return nil, fmt.Errorf("empty repository")
+func NewHandler(service *service.Service) (*Handler, error) {
+	if &service == nil {
+		return nil, errors.New("service was not created")
 	}
 
-	return &handlerImpl{
-		service: service,
+	return &Handler{
+		service: *service,
 	}, nil
+}
+
+func (h *Handler) InitRoutes() *gin.Engine {
+	router := gin.Default()
+
+	router.GET("/account/balance/:id", h.GetAccountBalance)
+	router.POST("/account/balance/add", h.AddToAccountBalance)
+	router.POST("/account/reservation", h.ReserveAccountsBalance)
+	router.POST("/account/reservation/admit", h.AdmitPurchase)
+	router.POST("/account/transfer", h.Transfer)
+	router.POST("/reservation/decline", h.Decline)
+
+	return router
 }

@@ -1,9 +1,5 @@
 package domain
 
-import (
-	"strconv"
-)
-
 type Account struct {
 	Id      int    `json:"account_id"`
 	Balance uint32 `json:"balance"`
@@ -14,17 +10,6 @@ type AccountDto struct {
 	BalanceAdded uint32 `json:"balance_added"`
 }
 
-func (a Account) String() string {
-	return "Id:" + strconv.FormatInt(int64(a.Id), 10) +
-		"\n Balance" + strconv.FormatUint(uint64(a.Balance), 10)
-}
-
-type Service struct {
-	Id     int    `json:"service_id"`
-	Amount uint32 `json:"amount"`
-	Name   string `json:"service_name"`
-}
-
 type ReservationDto struct {
 	AccountId int    `json:"account_id"`
 	ServiceId int    `json:"service_id"`
@@ -32,9 +17,14 @@ type ReservationDto struct {
 	Amount    uint32 `json:"amount"`
 }
 
-type ReportDto struct {
-	AccountId int    `json:"account_id"`
-	OrderId   int    `json:"order_id"`
-	ServiceId int    `json:"service_id"`
-	Amount    uint32 `json:"amount"`
+type DeclineDto struct {
+	AccountId int `json:"account_id"`
+	OrderId   int `json:"order_id"`
+	ServiceId int `json:"service_id"`
+}
+
+type Transfer struct {
+	Sender   int    `json:"sender_id"`
+	Receiver int    `json:"receiver_id"`
+	Amount   uint32 `json:"amount"`
 }
