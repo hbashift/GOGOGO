@@ -2,7 +2,6 @@ package domain
 
 import (
 	"strconv"
-	"time"
 )
 
 type Account struct {
@@ -24,16 +23,6 @@ type Service struct {
 	Id     int    `json:"service_id"`
 	Amount uint32 `json:"amount"`
 	Name   string `json:"service_name"`
-}
-
-type Reservation struct {
-	Id        int    `json:"reservation_id"`
-	AccountId int    `json:"account_id"`
-	ServiceId int    `json:"service_id"`
-	OrderId   int    `json:"order_id"`
-	Amount    uint32 `json:"amount"`
-	Date      time.Time
-	Status    ReserveStatus
 }
 
 type ReservationDto struct {

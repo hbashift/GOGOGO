@@ -8,54 +8,50 @@ import (
 	"strconv"
 )
 
-func (handler *handlerImpl) GetAccountBalance(ctx *gin.Context) {
+func (h *handlerImpl) GetAccountBalance(ctx *gin.Context) {
 	// знаем URL и контекст, можем обратиться к БД
 	id, err := strconv.Atoi(ctx.Param("id"))
 
 	if err != nil {
-		ctx.String(http.StatusBadRequest, "%s", err)
+		ctx.Error(err)
 		return
 	}
 
-	account, err := handler.db.GetBalance(id)
+	account, err := h.service.GetBalance(id)
 
 	if err != nil {
-		ctx.String(http.StatusBadRequest, "%s", err)
+		ctx.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
-	ctx.IndentedJSON(http.StatusOK, *account)
+	ctx.IndentedJSON(http.StatusOK, account)
 }
 
-func (handler *handlerImpl) AddToAccountBalance(ctx *gin.Context) {
+func (h *handlerImpl) AddToAccountBalance(ctx *gin.Context) {
 	account := domain.AccountDto{}
 	err := ctx.BindJSON(&account)
 
 	if err != nil {
-		ctx.String(http.StatusBadRequest, "%s", err)
+		ctx.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
-	if account.Id == 0 && account.BalanceAdded == 0 {
+	if account.Id < 0 || account.BalanceAdded == 0 {
 		err := errors.New("wrong json id format or adding zero balance")
-		ctx.String(http.StatusBadRequest, "%s", err)
+		ctx.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
-	status, err := handler.db.AddToBalance(account.Id, int(account.BalanceAdded))
+	err = h.service.AddToBalance(account.Id, int(account.BalanceAdded))
+
 	if err != nil {
-		ctx.String(http.StatusBadRequest, "%s", err)
+		ctx.AbortWithError(http.StatusNotFound, err)
 	}
 
-	if status == domain.Deposit {
-		ctx.IndentedJSON(http.StatusOK, account)
-	} else {
-		ctx.IndentedJSON(http.StatusBadRequest, nil)
-	}
-
+	ctx.Status(http.StatusOK)
 }
 
-func (handler *handlerImpl) ReserveUsersAmount(ctx *gin.Context) {
+func (h *handlerImpl) ReserveUsersAmount(ctx *gin.Context) {
 
 	reserve := domain.ReservationDto{}
 	checker := domain.ReservationDto{}
@@ -73,38 +69,42 @@ func (handler *handlerImpl) ReserveUsersAmount(ctx *gin.Context) {
 		return
 	}
 
-	status, err := handler.db.ReserveAmount(reserve.AccountId, reserve.ServiceId, reserve.OrderId, int(reserve.Amount))
+	status, err := h.service.ReserveAmount(reserve.AccountId, reserve.ServiceId, reserve.OrderId, int(reserve.Amount))
 
 	if err != nil {
-		ctx.String(http.StatusBadRequest, "Reservation status: %s\nSome error %s\n", status, err)
+		ctx.Error(err)
+		err = errors.New("reservation status: " + status.String())
+		ctx.AbortWithError(http.StatusNotFound, err)
 		return
 	}
 
-	ctx.IndentedJSON(http.StatusOK, reserve)
+	ctx.Status(http.StatusCreated)
 
 }
 
-func (handler *handlerImpl) AdmitPurchase(ctx *gin.Context) {
+func (h *handlerImpl) AdmitPurchase(ctx *gin.Context) {
 	report := domain.ReportDto{}
 	checker := domain.ReportDto{}
 	err := ctx.BindJSON(&report)
 
 	if err != nil {
-		ctx.String(http.StatusBadRequest, "%s", err)
+		ctx.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
 	if report == checker {
-		ctx.String(http.StatusBadRequest, "%s", err)
+		ctx.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
-	status, err := handler.db.Admit(report.AccountId, report.OrderId, report.ServiceId, int(report.Amount))
+	status, err := h.service.Admit(report.AccountId, report.OrderId, report.ServiceId, int(report.Amount))
 
 	if err != nil {
-		ctx.String(http.StatusBadRequest, "Transaction status: %s\n Error:%s", status, err)
+		ctx.Error(err)
+		err = errors.New("transaction status: " + status.String())
+		ctx.AbortWithError(http.StatusNotFound, err)
 		return
 	}
 
-	ctx.IndentedJSON(http.StatusOK, report)
+	ctx.Status(http.StatusOK)
 }

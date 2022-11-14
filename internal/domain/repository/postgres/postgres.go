@@ -72,9 +72,11 @@ func (db *postgresDb) AddToBalance(accountId, amount int) (domain.TransactionSta
 	if isExists {
 		account := repository.Account{}
 		err := db.postgres.Get(&account, "SELECT * FROM account WHERE account_id=$1", accountId)
+
 		if err != nil {
-			return domain.UnknownTransaction, errors.New("hehe poopoo")
+			return domain.UnknownTransaction, errors.New("database error")
 		}
+
 		db.postgres.MustExec("UPDATE account SET balance=$1 WHERE account_id=$2",
 			uint32(amount)+account.Balance, accountId)
 
@@ -241,7 +243,12 @@ func (db *postgresDb) Admit(accountId, orderId, serviceId, amount int) (domain.T
 			domain.Reserved.String(), orderId)
 		account := repository.Account{}
 
-		db.postgres.Get(&account, "SELECT * FROM account WHERE account_id=$1", accountId)
+		err := db.postgres.Get(&account, "SELECT * FROM account WHERE account_id=$1", accountId)
+
+		if err != nil {
+			return domain.UnknownTransaction, err
+		}
+
 		db.postgres.MustExec("UPDATE account SET balance=$1 WHERE account_id=$2",
 			account.Balance+uint32(amount), accountId)
 
@@ -280,7 +287,12 @@ func (db *postgresDb) DeclinePurchase(accountId, orderId, serviceId, amount int)
 			domain.Reserved.String(), orderId)
 		account := repository.Account{}
 
-		db.postgres.Get(&account, "SELECT * FROM account WHERE account_id=$1", accountId)
+		err := db.postgres.Get(&account, "SELECT * FROM account WHERE account_id=$1", accountId)
+
+		if err != nil {
+			return domain.UnknownTransaction, err
+		}
+
 		db.postgres.MustExec("UPDATE account SET balance=$1 WHERE account_id=$2",
 			account.Balance+uint32(amount), accountId)
 
@@ -293,4 +305,9 @@ func (db *postgresDb) DeclinePurchase(accountId, orderId, serviceId, amount int)
 		serviceId, orderId, amount, accountId, time.Now().Format("2006-01-02"))
 
 	return status, err
+}
+
+func (db *postgresDb) TransferFromAccountToAccount(accountId1, accountId2 int) (account1, account2 domain.TransactionStatus,
+	err error) {
+	return 0, 0, err
 }

@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"HTTP-REST-API/internal/domain/repository"
+	"HTTP-REST-API/internal/service"
 	"fmt"
 	"github.com/gin-gonic/gin"
 )
@@ -20,19 +20,16 @@ type Handler interface {
 	AdmitPurchase(ctx *gin.Context)
 }
 
-// TODO прочитать про Context
-// TODO можно сделать разделение handler'ов
-
 type handlerImpl struct { // implements Handler
-	db repository.Repository
+	service *service.Service
 }
 
-func NewHandler(repo repository.Repository) (Handler, error) {
-	if repo == nil {
+func NewHandler(service *service.Service) (Handler, error) {
+	if service == nil {
 		return nil, fmt.Errorf("empty repository")
 	}
 
 	return &handlerImpl{
-		db: repo,
+		service: service,
 	}, nil
 }
