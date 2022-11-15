@@ -11,8 +11,6 @@ import (
 )
 
 func main() {
-	// TODO разобраться как поднимать базу нормально и еще докер композе
-
 	err := initConfig()
 
 	db, err := postgres.NewPostgresDB(postgres.Config{
@@ -42,7 +40,7 @@ func main() {
 	}
 
 	router := handler.InitRoutes()
-	dns := fmt.Sprintf( /*viper.GetString("host") + */ ":" + viper.GetString("port"))
+	dns := fmt.Sprintf(":" + viper.GetString("port"))
 	router.Run(dns)
 }
 

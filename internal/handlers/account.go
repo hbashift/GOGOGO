@@ -1,4 +1,4 @@
-package handlers // Package handlers для аккаунта
+package handlers
 
 import (
 	"HTTP-REST-API/internal/domain"

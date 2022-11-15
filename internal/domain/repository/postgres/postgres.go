@@ -24,7 +24,7 @@ type Config struct {
 	SSLMode  string
 }
 
-// table creation
+// tables creation
 
 func InitPostgresDb(db *sqlx.DB) repository.Repository {
 
