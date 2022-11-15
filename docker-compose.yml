@@ -1,0 +1,21 @@
+version: "3.7"
+services:
+  database:
+    image: postgres:alpine
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=12345
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=avito
+    ports:
+      - "1234:5432"
+  server:
+    build:
+      context: ./
+    command: ./server
+    depends_on:
+      - database
+    networks:
+      - default
+    ports:
+      - "5050:9090"

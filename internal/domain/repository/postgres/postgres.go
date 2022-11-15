@@ -4,7 +4,9 @@ import (
 	"HTTP-REST-API/internal/domain"
 	"HTTP-REST-API/internal/domain/repository"
 	"errors"
+	"fmt"
 	"github.com/jmoiron/sqlx"
+	"io/ioutil"
 	"log"
 	"time"
 )
@@ -13,38 +15,45 @@ type postgresDb struct {
 	postgres *sqlx.DB
 }
 
-var schema = `
-CREATE TABLE account (
-    account_id int PRIMARY KEY,
-    balance decimal
-);
+const (
+	HOST = "local"
+	PORT = "8080"
+)
 
-CREATE TABLE reservation (
-    reservation_id serial PRIMARY KEY,
-    account_id int REFERENCES account(account_id),
-    service_id int NOT NULL,
-    order_id int NOT NULL UNIQUE,
-    amount decimal NOT NULL,
-    reserve_date date NOT NULL,
-    reservation_status varchar(20) NOT NULL
-);
-
-CREATE TABLE accounting_report (
-    report_id serial PRIMARY KEY,
-    service_id int NOT NULL,
-    order_id int NOT NULL UNIQUE,
-    amount decimal NOT NULL,
-    account_id int,
-    report_date date,
-    status varchar(20) NOT NULL                        
-)`
+type Config struct {
+	Host     string
+	Port     string
+	Username string
+	Password string
+	DBName   string
+	SSLMode  string
+}
 
 // table creation
 
 func InitPostgresDb(db *sqlx.DB) repository.Repository {
-	// TODO Setup() создает БД и таблички либо sql файл
-	// db.MustExec(schema)
+
+	path, _ := ioutil.ReadFile("configs/tables.sql")
+	c := string(path)
+
+	db.MustExec(c)
+
 	return &postgresDb{postgres: db}
+}
+
+func NewPostgresDB(cfg Config) (*sqlx.DB, error) {
+	db, err := sqlx.Open("postgres", fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=%s",
+		cfg.Host, cfg.Port, cfg.Username, cfg.DBName, cfg.Password, cfg.SSLMode))
+	if err != nil {
+		return nil, err
+	}
+
+	err = db.Ping()
+	if err != nil {
+		return nil, err
+	}
+
+	return db, nil
 }
 
 // GetBalance returns error if you send wrong account_id
@@ -132,20 +141,21 @@ func (db *postgresDb) ReserveAmount(accountId, serviceId, orderId, amount int) (
 		return domain.UnknownReserve, errors.New("reservation with such order_id is already exists")
 	}
 
-	rows, _ = db.postgres.Query("SELECT EXISTS(SELECT * FROM reservation WHERE order_id=$1 AND (reservation_status=$2 OR reservation_status=$3 OR reservation_status=$4))",
-		orderId, domain.Reserved.String(), domain.Declined.String(), domain.Accepted.String())
+	rows, _ = db.postgres.Query("SELECT EXISTS(SELECT * FROM reservation WHERE order_id=$1 AND reservation_status=$2)",
+		orderId, domain.Reserved.String())
 
-	isExists = false
+	var reservationExists bool
 
 	for rows.Next() {
-		if err := rows.Scan(&isExists); err != nil {
+		if err := rows.Scan(&reservationExists); err != nil {
 			log.Fatalln(err)
 		}
 	}
 
 	var status = domain.UnknownReserve
 
-	if !isExists {
+	if !reservationExists {
+		// Checking if account with accountId exists
 		rows, _ := db.postgres.Queryx("SELECT EXISTS(SELECT * FROM account WHERE account_id=$1)", accountId)
 
 		var accountExists bool
@@ -164,10 +174,11 @@ func (db *postgresDb) ReserveAmount(accountId, serviceId, orderId, amount int) (
 			db.postgres.MustExec("INSERT INTO reservation(account_id, service_id, order_id, amount, reserve_date, reservation_status) VALUES ($1, $2, $3, $4, $5, $6)",
 				accountId, serviceId, orderId, amount, time.Now().Format("2006-01-02"), status.String())
 		} else {
-			return status, errors.New("huyhuy")
+			return status, errors.New("")
 		}
 
 	} else {
+		// Calculation all reservations with status "reserved"
 		var reserves []repository.Reservation
 		err := db.postgres.Select(&reserves, "SELECT * FROM reservation WHERE account_id=$1 AND reservation_status=$2",
 			accountId, domain.Reserved.String())

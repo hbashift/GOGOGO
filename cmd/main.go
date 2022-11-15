@@ -4,23 +4,25 @@ import (
 	"HTTP-REST-API/internal/domain/repository/postgres"
 	"HTTP-REST-API/internal/handlers"
 	"HTTP-REST-API/internal/service"
-	"github.com/jmoiron/sqlx"
+	"fmt"
 	_ "github.com/lib/pq"
+	"github.com/spf13/viper"
 	"log"
 )
 
 func main() {
 	// TODO разобраться как поднимать базу нормально и еще докер композе
-	const (
-		host     = "localhost"
-		port     = 5432
-		user     = "postgres"
-		password = "12345"
-		dbName   = "test_db"
-	)
 
-	db, err := sqlx.Connect("postgres", "postgres://postgres:12345@localhost:5432/testdb?sslmode=disable")
-	defer db.Close()
+	err := initConfig()
+
+	db, err := postgres.NewPostgresDB(postgres.Config{
+		Host:     viper.GetString("db.host"),
+		Port:     viper.GetString("db.port"),
+		Username: viper.GetString("db.username"),
+		Password: viper.GetString("db.password"),
+		DBName:   viper.GetString("db.dbname"),
+		SSLMode:  viper.GetString("db.sslmode"),
+	})
 
 	if err != nil {
 		log.Fatalln(err)
@@ -40,5 +42,12 @@ func main() {
 	}
 
 	router := handler.InitRoutes()
-	router.Run("localhost:8080")
+	dns := fmt.Sprintf( /*viper.GetString("host") + */ ":" + viper.GetString("port"))
+	router.Run(dns)
+}
+
+func initConfig() error {
+	viper.AddConfigPath("configs")
+	viper.SetConfigName("config")
+	return viper.ReadInConfig()
 }
