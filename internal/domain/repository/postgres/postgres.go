@@ -15,11 +15,6 @@ type postgresDb struct {
 	postgres *sqlx.DB
 }
 
-const (
-	HOST = "local"
-	PORT = "8080"
-)
-
 type Config struct {
 	Host     string
 	Port     string
@@ -141,8 +136,8 @@ func (db *postgresDb) ReserveAmount(accountId, serviceId, orderId, amount int) (
 		return domain.UnknownReserve, errors.New("reservation with such order_id is already exists")
 	}
 
-	rows, _ = db.postgres.Query("SELECT EXISTS(SELECT * FROM reservation WHERE order_id=$1 AND reservation_status=$2)",
-		orderId, domain.Reserved.String())
+	rows, _ = db.postgres.Query("SELECT EXISTS(SELECT * FROM reservation WHERE account_id=$1 AND reservation_status=$2)",
+		accountId, domain.Reserved.String())
 
 	var reservationExists bool
 

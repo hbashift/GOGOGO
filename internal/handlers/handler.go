@@ -23,7 +23,7 @@ func NewHandler(service *service.Service) (*Handler, error) {
 func (h *Handler) InitRoutes() *gin.Engine {
 	router := gin.Default()
 
-	router.GET("/account/balance/:id", h.GetAccountBalance)
+	router.GET("/account/balance", h.GetAccountBalance)
 	router.POST("/account/balance/add", h.AddToAccountBalance)
 	router.POST("/account/reservation", h.ReserveAccountsBalance)
 	router.POST("/account/reservation/admit", h.AdmitPurchase)

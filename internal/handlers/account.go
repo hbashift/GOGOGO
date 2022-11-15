@@ -5,14 +5,21 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"strconv"
 )
 
 // GetAccountBalance returns domain.Account in JSON with Context if input data is valid
 // else aborts operation with specified error
 func (h *Handler) GetAccountBalance(ctx *gin.Context) {
 	// знаем URL и контекст, можем обратиться к БД
-	id, err := strconv.Atoi(ctx.Param("id"))
+	account := &domain.Account{}
+	err := ctx.BindJSON(account)
+
+	if err != nil {
+		ctx.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	id := account.Id
 
 	if id < 0 {
 		er := errors.New("negative id")
@@ -25,7 +32,7 @@ func (h *Handler) GetAccountBalance(ctx *gin.Context) {
 		return
 	}
 
-	account, err := h.service.GetBalance(id)
+	account, err = h.service.GetBalance(id)
 
 	if err != nil {
 		ctx.AbortWithError(http.StatusBadRequest, err)
