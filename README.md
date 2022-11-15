@@ -18,7 +18,14 @@ docker-compose up server
 ```
 *как я понял это проблема самого PostgreSQL*
 
+## Структура Базы данных
+### account - таблица с id и balance пользователей
+### reservation - таблица со всеми резервациями/заказами пользователей
+### accounting_report - таблица со всеми принятыми/оплаченными заказами
+
 ## Ednpoints
+Для каждого ednpoint'а реализована валидация данных.
+
 ### (GET) /account/balance/:id
 
 Возвращает баланс по account_id указанного пользователя
@@ -85,3 +92,4 @@ docker-compose up server
 ![Pasted image 20221115044945](https://user-images.githubusercontent.com/71451067/201808108-5c548f81-9926-43b6-b71f-a9a526d5b592.png)
 2) В случае если получатель не существует
 ![Pasted image 20221115045058](https://user-images.githubusercontent.com/71451067/201808119-b21caf83-1f08-4e2d-b08c-d51fc83366b6.png)
+
