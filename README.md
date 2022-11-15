@@ -18,24 +18,47 @@ docker-compose up server
 ```
 *как я понял это проблема самого PostgreSQL*
 
+<<<<<<< HEAD
 ## Ednpoints
+=======
+## Структура Базы данных
+### account - таблица с id и balance пользователей
+### reservation - таблица со всеми резервациями/заказами пользователей
+### accounting_report - таблица со всеми принятыми/оплаченными заказами
+
+## Ednpoints
+Для каждого ednpoint'а реализована валидация данных.
+
+>>>>>>> eb43d7171d51ee9377046b72354f8b7443e3513c
 ### (GET) /account/balance/:id
 
 Возвращает баланс по account_id указанного пользователя
 
 Пример:
 1) Если пользователь существует
+<<<<<<< HEAD
 ![[Pasted image 20221115041827.png]]
 2) Если пользователя не существует
 ![[Pasted image 20221115041859.png]]
+=======
+![Pasted image 20221115041827](https://user-images.githubusercontent.com/71451067/201807906-41ca7aa1-3186-4080-8ca3-823ff788b9fd.png)
+2) Если пользователя не существует
+![Pasted image 20221115041859](https://user-images.githubusercontent.com/71451067/201807924-21ca8776-6bf4-4eaf-bd64-310a44fd2739.png)
+>>>>>>> eb43d7171d51ee9377046b72354f8b7443e3513c
 
 ### (POST) /account/balance/add
 Пополняет баланс пользователя. Если пользователя не существует, то создает новый счет. Возвращает статус **200** (OK) в случае успеха
 Пример:
 1) Если пользователь существует
+<<<<<<< HEAD
 ![[Pasted image 20221115042127.png]]
 2) Если пользователя не существует
 ![[Pasted image 20221115042157.png]]
+=======
+![Pasted image 20221115042127](https://user-images.githubusercontent.com/71451067/201807954-6de496fe-4ab7-4780-b1f5-2f2b8be749c5.png)
+2) Если пользователя не существует
+![Pasted image 20221115042157](https://user-images.githubusercontent.com/71451067/201807972-3c632a54-3d0b-4a63-a2b5-b4cad9ff14d6.png)
+>>>>>>> eb43d7171d51ee9377046b72354f8b7443e3513c
 
 ### (POST) /account/reservation
 Резервирует переданную сумму на балансе пользователя. В случае успеха возвращает статус **201** (Created). 
@@ -47,9 +70,15 @@ docker-compose up server
 5) У каждого заказа уникальный id. Нельзя сделать холдирование с одним и тем же order_id (возвращает статус **404** и кидает ошибку в логгер в случае попытки)
 Пример: 
 1) Если средств достаточно
+<<<<<<< HEAD
 ![[Pasted image 20221115042825.png]]
 2) Если средств недостаточно
 ![[Pasted image 20221115043739.png]]
+=======
+![Pasted image 20221115042825](https://user-images.githubusercontent.com/71451067/201807987-03e267a4-90a5-44c7-8c5c-91c2db2341b7.png)
+2) Если средств недостаточно
+![Pasted image 20221115043739](https://user-images.githubusercontent.com/71451067/201807991-89f1f038-aa7a-41de-b6e3-7c48a0277321.png)
+>>>>>>> eb43d7171d51ee9377046b72354f8b7443e3513c
 
 ### (POST) /account/reservation/admit
 Метод принятия выручки. В случае успеха возвращает статус **202** (Accepted).
@@ -59,9 +88,15 @@ docker-compose up server
 3) Если резервация не была найдена возвращает статус **404**
 Пример:
 1) Если входные данные верные
+<<<<<<< HEAD
 ![[Pasted image 20221115044242.png]]
 2) Иначе
 ![[Pasted image 20221115044353.png]]
+=======
+![Pasted image 20221115044242](https://user-images.githubusercontent.com/71451067/201808021-a6fd8089-c771-4210-965c-42189627e743.png)
+2) Иначе
+![Pasted image 20221115044353](https://user-images.githubusercontent.com/71451067/201808026-f0b2f92c-7ec3-48a2-8046-083df9b8fae9.png)
+>>>>>>> eb43d7171d51ee9377046b72354f8b7443e3513c
 
 ### (POST) /reservation/decline
 Метод отмены покупки/заказаю. В случае успеха возвращает статус **202** (Accepted) 
@@ -71,9 +106,15 @@ docker-compose up server
 3) Иначе, возвращает статус **404** (NotFound)
 Пример:
 1) В случае существования
+<<<<<<< HEAD
 ![[Pasted image 20221115045534.png]]
 2) Иначе
 ![[Pasted image 20221115045554.png]]
+=======
+![Pasted image 20221115045534](https://user-images.githubusercontent.com/71451067/201808056-ec4ed9db-9b2f-42a8-bf64-fbf7e26d93d5.png)
+2) Иначе
+![Pasted image 20221115045554](https://user-images.githubusercontent.com/71451067/201808096-522b6363-ad69-40b0-84d5-59984b69e83e.png)
+>>>>>>> eb43d7171d51ee9377046b72354f8b7443e3513c
 
 ### (POST) /account/transfer
 Метод перевода средств другому пользователю.  В случае успеха возвращает статус **202** (Accepted)
@@ -82,7 +123,13 @@ docker-compose up server
 2) Если средств достаточно, то проверяет существования получателя, если не существует возвращает **400** (badRequest)
 Пример:
 1) В случае, если получатель существует
+<<<<<<< HEAD
 ![[Pasted image 20221115044945.png]]
 2) В случае если получатель не существует
 ![[Pasted image 20221115045058.png]]
+=======
+![Pasted image 20221115044945](https://user-images.githubusercontent.com/71451067/201808108-5c548f81-9926-43b6-b71f-a9a526d5b592.png)
+2) В случае если получатель не существует
+![Pasted image 20221115045058](https://user-images.githubusercontent.com/71451067/201808119-b21caf83-1f08-4e2d-b08c-d51fc83366b6.png)
+>>>>>>> eb43d7171d51ee9377046b72354f8b7443e3513c
 
