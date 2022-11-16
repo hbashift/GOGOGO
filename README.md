@@ -90,9 +90,9 @@ docker-compose up server
 Пример:
 
 - В случае существования
-   ![Pasted image 20221115045534](https://user-images.githubusercontent.com/71451067/201808056-ec4ed9db-9b2f-42a8-bf64-fbf7e26d93d5.png)
+   ![image](https://user-images.githubusercontent.com/71451067/202136383-85259f5f-15f8-44fb-9b3c-aa9006e610c7.png)
 - Иначе
-   ![Pasted image 20221115045554](https://user-images.githubusercontent.com/71451067/201808096-522b6363-ad69-40b0-84d5-59984b69e83e.png)
+   ![image](https://user-images.githubusercontent.com/71451067/202137009-476cd35c-f9aa-409b-a17f-d0d5cd259cad.png)
 
 ### (POST) /account/transfer
 Метод перевода средств другому пользователю.  В случае успеха возвращает статус **202** (Accepted)
