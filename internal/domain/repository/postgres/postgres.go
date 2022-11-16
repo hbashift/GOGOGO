@@ -169,7 +169,7 @@ func (db *postgresDb) ReserveAmount(accountId, serviceId, orderId, amount int) (
 			db.postgres.MustExec("INSERT INTO reservation(account_id, service_id, order_id, amount, reserve_date, reservation_status) VALUES ($1, $2, $3, $4, $5, $6)",
 				accountId, serviceId, orderId, amount, time.Now().Format("2006-01-02"), status.String())
 		} else {
-			return status, errors.New("")
+			return status, errors.New("not enough balance")
 		}
 
 	} else {
@@ -196,7 +196,9 @@ func (db *postgresDb) ReserveAmount(accountId, serviceId, orderId, amount int) (
 		}
 
 		if expenses+uint32(amount) > account.Balance {
+
 			return domain.Declined, errors.New("not enough balance")
+
 		} else {
 			status = db.checkBalance(accountId, amount)
 

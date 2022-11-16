@@ -32,9 +32,9 @@ docker-compose up server
 
 Пример:
 
-1) Если пользователь существует
+- Если пользователь существует
    ![Pasted image 20221115041827](https://user-images.githubusercontent.com/71451067/201807906-41ca7aa1-3186-4080-8ca3-823ff788b9fd.png)
-2) Если пользователя не существует
+- Если пользователя не существует
    ![Pasted image 20221115041859](https://user-images.githubusercontent.com/71451067/201807924-21ca8776-6bf4-4eaf-bd64-310a44fd2739.png)
 
 ### (POST) /account/balance/add
